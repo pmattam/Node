@@ -21,7 +21,7 @@ rl.question('Input file: ', (inputFilename) => {
                 // var firstFileContents = fileContents.toString();
                 // console.log(firstFileContents);
 
-                // TRIGGER AN ERROR BY RUNNING THE PROGRAM WITH AN OUTPUT FILE IN A NON-EXISTANT DIRECTORY,
+                // TRIGGER AN ERROR BY RUNNING THE PROGRAM WITH AN OUTPUT FILE IN A NON-EXISTENT DIRECTORY,
                 // SUCH AS thisdirdoesntexist/output.txt, ENSURE THAT THE ERROR IS PROPERLY DISPLAYED.
                 // fs.writeFile(`newDirectory/${outputFilename}`, fileContents.toString().toUpperCase(), function(err) {
                 fs.writeFile(outputFilename, fileContents.toString().toUpperCase(), function(err) {

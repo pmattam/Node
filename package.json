@@ -1,5 +1,5 @@
 {
-    "name": "node",
+    "name": "NodeJS",
     "version": "1.0.0",
     "description": "Node Exercises",
     "main": "main.js",
@@ -8,14 +8,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/pmattam/Node.git"
+        "url": "git+https://github.com/pmattam/NodeJS.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/pmattam/Node/issues"
+        "url": "https://github.com/pmattam/NodeJS/issues"
     },
-    "homepage": "https://github.com/pmattam/Node#readme",
+    "homepage": "https://github.com/pmattam/NodeJS#readme",
     "dependencies": {
         "request": "^2.85.0"
     }

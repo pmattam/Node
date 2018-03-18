@@ -25,37 +25,52 @@ var consoleDisplay = function() {
     console.log(" 4. List all entries \n", "5. Quit \n");
     rl.question("What do you want to do(1-5) ? ", function(answer) {
         answerNumber = parseInt(answer, 10);
-        if (answerNumber === 1) {
-            lookUpAnEntry();
-        } else if (answerNumber === 2) {
-            setAnEntry();
-        } else if (answerNumber === 3) {
-            deleteAnEntry();
-        } else if (answerNumber === 4) {
-            listAllEntries();
-        } else if (answerNumber >= 5) {
-            console.log('Bye.');
-            rl.close();
+        if (answerNumber < 1 || answerNumber > 5 || isNaN(answerNumber)) {
+            console.log('Invalid choice\n');
+            consoleDisplay();
+        } else {
+            if (answerNumber === 1) {
+                lookUpAnEntry();
+            } else if (answerNumber === 2) {
+                setAnEntry();
+            } else if (answerNumber === 3) {
+                deleteAnEntry();
+            } else if (answerNumber === 4) {
+                listAllEntries();
+            } else if (answerNumber >= 5) {
+                console.log('Bye.');
+                rl.close();
+            }
         }
     });
-    return answerNumber;
+    // return answerNumber;
 };
 
 var lookUpAnEntry = function() {
     rl.question("Name: ", function(name) {
-        fs.readFile(filename, function(err, fileData) {
-            if (err) {
-                console.error(err.toString());
-            } else {
-                var data = JSON.parse(fileData);
-                if (data[name] === undefined) {
-                    console.log('Entry not found');
-                } else {
-                    console.log(`Found entry for ${name}: ${data[name].PhoneNumber}`)
-                }
-            }
-            consoleDisplay();
-        });
+        // READING THE ENTRY FROM THE FILE
+        // fs.readFile(filename, function(err, fileData) {
+        //     if (err) {
+        //         console.error(err.toString());
+        //     } else {
+        //         var data = JSON.parse(fileData);
+        //         if (data[name] === undefined) {
+        //             console.log('Entry not found');
+        //         } else {
+        //             console.log(`Found entry for ${name}: ${data[name].PhoneNumber}`)
+        //         }
+        //     }
+        //     consoleDisplay();
+        // });
+
+        // INSTEAD OF READING THE ENTRY FROM THE FILE .. GETTING ENTRY FROM THE STORED OBJECT
+        if (storeObj[name] !== undefined) {
+            console.log(`Found entry for ${name}: ${storeObj[name].PhoneNumber}\n`);
+            // console.log(`Found entry for ${storeObj[name].Name}: ${storeObj[name].PhoneNumber}\n`);
+        } else {
+            console.log('Entry not found');
+        }
+        consoleDisplay();
     });
 };
 
@@ -79,25 +94,48 @@ var setAnEntry = function() {
 };
 
 var deleteAnEntry = function() {
-    console.log("delete entry");
-    consoleDisplay();
-};
-
-var listAllEntries = function() {
-    fs.readFile(filename, function(err, fileData) {
-        if (err) {
-            console.error(err.toString());
+    rl.question('Name: ', function(name) {
+        if (storeObj[name] === undefined) {
+            console.log(`Entry not found ${name}`);
         } else {
-            if (fileData.toString() !== '') {
-                data = JSON.parse(fileData);
-                valuesOfDataArray = Object.values(data);
-                valuesOfDataArray.forEach(function(value) {
-                    console.log(`Found Entry for ${value.Name}: ${value.PhoneNumber}`);
-                });
-            }
+            delete storeObj[name];
+            console.log(`Deleted entry for ${name}`);
+            fs.writeFile(filename, JSON.stringify(storeObj), function(err) {
+                if (err) {
+                    console.error(err.toString());
+                }
+            });
         }
         consoleDisplay();
     });
+};
+
+var listAllEntries = function() {
+    //  READING THE ENTRIES FROM THE FILE
+    // fs.readFile(filename, function(err, fileData) {
+    //     if (err) {
+    //         console.error(err.toString());
+    //     } else {
+    //         if (fileData.toString() !== '') {
+    //             valuesOfDataArray = Object.values(JSON.parse(fileData));
+    //             valuesOfDataArray.forEach(function(value) {
+    //                 console.log(`Found Entry for ${value.Name}: ${value.PhoneNumber}`);
+    //             });
+    //         }
+    //     }
+    //     consoleDisplay();
+    // });
+
+    // INSTEAD OF READING FROM THE FILE .. GETTING ENTRIES FROM THE STORED OBJECT
+    var entriesList = Object.values(storeObj);
+    if (entriesList.length !== 0) {
+        entriesList.forEach(element => {
+            console.log(`Found Entry for ${element.Name}: ${element.PhoneNumber}\n`);
+        });
+    } else {
+        console.log('No Items in the Phonebook');
+    }
+    consoleDisplay();
 };
 
 getStoredObject();

@@ -1,24 +1,24 @@
 {
-  "name": "nodejs",
-  "version": "1.0.0",
-  "description": "Node Exercises",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pmattam/NodeJS.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/pmattam/NodeJS/issues"
-  },
-  "homepage": "https://github.com/pmattam/NodeJS#readme",
-  "dependencies": {
-    "gm": "^1.23.1",
-    "request": "^2.85.0"
-  },
-  "devDependencies": {}
+    "name": "nodejs",
+    "version": "1.0.0",
+    "description": "Node Exercises",
+    "main": "phonebook.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/pmattam/NodeJS.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/pmattam/NodeJS/issues"
+    },
+    "homepage": "https://github.com/pmattam/NodeJS#readme",
+    "dependencies": {
+        "gm": "^1.23.1",
+        "request": "^2.85.0"
+    },
+    "devDependencies": {}
 }

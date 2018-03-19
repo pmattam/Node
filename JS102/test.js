@@ -49,3 +49,34 @@ assert.deepEqual(matrixMultiplication([
     [19, 14, 36],
     [8, 8, 17]
 ], 'Test3 - Matrix multiplication result is not an expected result');
+
+var ticTacToe = require('./ticTacToe');
+assert.deepEqual(ticTacToe([
+    ['O', 'O', 'O'],
+    ['X', null, 'X'],
+    [null, 'X', null]
+]), 'O', 'Test1 - TicTacToe has an unexpected output');
+
+assert.deepEqual(ticTacToe([
+    ['O', 'X', 'O'],
+    ['O', 'X', null],
+    [null, 'X', null]
+]), 'X', 'Test2 - TicTacToe has an unexpected output');
+
+assert.deepEqual(ticTacToe([
+    [null, 'X', 'O'],
+    ['O', 'O', null],
+    [null, 'X', 'X']
+]), null, 'Test3 - TicTacToe has an unexpected output');
+
+assert.deepEqual(ticTacToe([
+    ['O', 'X', null],
+    [null, 'O', 'X'],
+    [null, 'X', 'O']
+]), 'O', 'Test4 - TicTacToe has an unexpected output');
+
+assert.deepEqual(ticTacToe([
+    ['O', 'X', 'X'],
+    [null, 'X', 'X'],
+    ['X', 'O', 'O']
+]), 'X', 'Test5 - TicTacToe has an unexpected output');

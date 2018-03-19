@@ -3,6 +3,18 @@ var assert = require('assert');
 var positiveNumbers = require('./positiveNumbers');
 assert.deepEqual(positiveNumbers([1, -3, 5, -3, 0]), [1, 5, 0], "Test failed as the results didn't match");
 
+var matrixAdd = require('./matrixAdd.js');
+assert.deepEqual(matrixAdd([
+    [1, 3],
+    [2, 4]
+], [
+    [5, 2],
+    [1, 0]
+]), [
+    [6, 5],
+    [3, 4]
+], 'Matrix Addition has an unexpected result');
+
 var matrixMultiplication = require('./matrixMultipication');
 assert.deepEqual((matrixMultiplication([
     [2, 4],

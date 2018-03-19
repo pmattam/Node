@@ -50,6 +50,11 @@ assert.deepEqual(matrixMultiplication([
     [8, 8, 17]
 ], 'Test3 - Matrix multiplication result is not an expected result');
 
+var rockPaperScissors = require('./rockPaperScissors');
+assert.deepEqual(rockPaperScissors('rock', 'scissors'), 'player 1', 'Tes1 - RockPaperScissors result is not an expected result');
+assert.deepEqual(rockPaperScissors('rock', 'paper'), 'player 2', 'Test2 - RockPaperScissors result is not an expected result');
+assert.deepEqual(rockPaperScissors('paper', 'paper'), 'draw', 'Test 3 - RockPaperScissors result is not an expected result');
+
 var ticTacToe = require('./ticTacToe');
 assert.deepEqual(ticTacToe([
     ['O', 'O', 'O'],

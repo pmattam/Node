@@ -53,7 +53,6 @@ var consoleDisplay = function() {
 };
 
 var lookUpAnEntry = function() {
-    // rl.question("Name: ", function(name) {
     rlQuestionAsPromise("Name: ")
         .then(function(name) {
             if (storeObj[name] !== undefined) {
@@ -64,30 +63,6 @@ var lookUpAnEntry = function() {
             }
             consoleDisplay();
         });
-    // READING THE ENTRY FROM THE FILE
-    // fs.readFile(filename, function(err, fileData) {
-    //     if (err) {
-    //         console.error(err.toString());
-    //     } else {
-    //         var data = JSON.parse(fileData);
-    //         if (data[name] === undefined) {
-    //             console.log('Entry not found');
-    //         } else {
-    //             console.log(`Found entry for ${name}: ${data[name].PhoneNumber}`)
-    //         }
-    //     }
-    //     consoleDisplay();
-    // });
-
-    // INSTEAD OF READING THE ENTRY FROM THE FILE .. GETTING ENTRY FROM THE STORED OBJECT
-    // if (storeObj[name] !== undefined) {
-    //     console.log(`Found entry for ${name}: ${storeObj[name].PhoneNumber}\n`);
-    //     // console.log(`Found entry for ${storeObj[name].Name}: ${storeObj[name].PhoneNumber}\n`);
-    // } else {
-    //     console.log('Entry not found');
-    // }
-    // consoleDisplay();
-    // });
 };
 
 var setAnEntry = function() {
@@ -104,7 +79,7 @@ var setAnEntry = function() {
             console.log(entryData);
             storeObj[entryData.Name] = entryData;
             console.log(storeObj);
-            return writeFile(filename, JSON.stringify(storeObj))
+            return writeFile(filename, JSON.stringify(storeObj));
         })
         .then(function() {
             console.log(`Entry stored for ${entryData.Name}`);
@@ -135,20 +110,17 @@ var setAnEntry = function() {
 };
 
 var deleteAnEntry = function() {
-    rl.question('Name: ', function(name) {
-        if (storeObj[name] === undefined) {
-            console.log(`Entry not found ${name}`);
-        } else {
-            delete storeObj[name];
-            console.log(`Deleted entry for ${name}`);
-            fs.writeFile(filename, JSON.stringify(storeObj), function(err) {
-                if (err) {
-                    console.error(err.toString());
-                }
-            });
-        }
-        consoleDisplay();
-    });
+    rlQuestionAsPromise("Name: ")
+        .then(function(name) {
+            if (storeObj[name] === undefined) {
+                console.log(`Entry not found ${name}`);
+            } else {
+                delete storeObj[name];
+                console.log(`Deleted entry for ${name}`);
+                writeFile(filename, JSON.stringify(storeObj));
+                consoleDisplay();
+            }
+        });
 };
 
 var listAllEntries = function() {

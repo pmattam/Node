@@ -31,7 +31,6 @@ var getContact = function(request, response) {
 var deleteContact = function(request, response) {
     var contactId = getSuffix(request.url, '/contacts/');
     var foundContactWithId = findContactWithId(contactId);
-    console.log(indexOfFoundContactWithId(foundContactWithId));
     contacts.splice(indexOfFoundContactWithId(foundContactWithId), 1);
     response.end(`Deleted Contact ${foundContactWithId.first}`);
 };
@@ -71,17 +70,20 @@ var notFound = function(request, response) {
     response.end('404, Nothing Here!');
 };
 
+var routes = [
+    { method: 'GET', path: '/contacts/', handler: getContact },
+    { method: 'DELETE', path: '/contacts/', handler: deleteContact },
+    { method: 'PUT', path: '/contacts/', handler: updateContact },
+    { method: 'GET', path: '/contacts', handler: getContacts },
+    { method: 'POST', path: '/contacts', handler: postContacts }
+];
+
 var server = http.createServer(function(request, response) {
-    if (matches(request, 'GET', '/contacts/')) {
-        getContact(request, response);
-    } else if (matches(request, 'DELETE', '/contacts/')) {
-        deleteContact(request, response);
-    } else if (matches(request, 'PUT', '/contacts/')) {
-        updateContact(request, response);
-    } else if (matches(request, 'GET', '/contacts')) {
-        getContacts(request, response);
-    } else if (matches(request, 'POST', '/contacts')) {
-        postContacts(request, response);
+    var route = routes.find(function(route) {
+        return matches(request, route.method, route.path);
+    });
+    if (route) {
+        route.handler(request, response);
     } else {
         notFound(request, response);
     }

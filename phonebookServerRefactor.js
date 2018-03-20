@@ -23,49 +23,67 @@ var indexOfFoundContactWithId = function(foundContactWithId) {
     }
 };
 
-var getContact = function() {
+var getContact = function(request, response) {
+    var contactId = getSuffix(request.url, '/contacts/');
+    response.end(JSON.stringify(findContactWithId(contactId)));
+};
 
+var deleteContact = function(request, response) {
+    var contactId = getSuffix(request.url, '/contacts/');
+    var foundContactWithId = findContactWithId(contactId);
+    console.log(indexOfFoundContactWithId(foundContactWithId));
+    contacts.splice(indexOfFoundContactWithId(foundContactWithId), 1);
+    response.end(`Deleted Contact ${foundContactWithId.first}`);
+};
+
+var updateContact = function(request, response) {
+    var contactId = getSuffix(request.url, '/contacts/')
+    var body = '';
+    request.on('data', function(chunk) {
+        body += chunk.toString();
+    });
+    request.on('end', function() {
+        var updatedContact = JSON.parse(body);
+        contacts[indexOfFoundContactWithId(findContactWithId(contactId))] = updatedContact;
+        response.end(`Updated Contact for ${updatedContact.first}`);
+    });
+};
+
+var getContacts = function(request, response) {
+    response.end(JSON.stringify(contacts));
+};
+
+var postContacts = function(request, response) {
+    var body = '';
+    request.on('data', function(chunk) {
+        body += chunk.toString();
+    });
+    request.on('end', function() {
+        var contact = JSON.parse(body);
+        contact.id = ++lastId;
+        response.end("New Contact, got it!");
+        contacts.push(contact);
+    });
+};
+
+var notFound = function(request, response) {
+    response.statusCode = 404;
+    response.end('404, Nothing Here!');
 };
 
 var server = http.createServer(function(request, response) {
     if (matches(request, 'GET', '/contacts/')) {
-        var contactId = getSuffix(request.url, '/contacts/');
-        response.end(JSON.stringify(findContactWithId(contactId)));
+        getContact(request, response);
     } else if (matches(request, 'DELETE', '/contacts/')) {
-        var contactId = getSuffix(request.url, '/contacts/');
-        var foundContactWithId = findContactWithId(contactId);
-        console.log(indexOfFoundContactWithId(foundContactWithId));
-        contacts.splice(indexOfFoundContactWithId(foundContactWithId), 1);
-        response.end(`Deleted Contact ${foundContactWithId.first}`);
+        deleteContact(request, response);
     } else if (matches(request, 'PUT', '/contacts/')) {
-        var contactId = getSuffix(request.url, '/contacts/')
-        var body = '';
-        request.on('data', function(chunk) {
-            body += chunk.toString();
-        });
-        request.on('end', function() {
-            var updatedContact = JSON.parse(body);
-            contacts[indexOfFoundContactWithId(findContactWithId(contactId))] = updatedContact;
-            response.end(`Updated Contact for ${updatedContact.first}`);
-        });
+        updateContact(request, response);
     } else if (matches(request, 'GET', '/contacts')) {
-        console.log("Its coming here!");
-        response.end(JSON.stringify(contacts));
+        getContacts(request, response);
     } else if (matches(request, 'POST', '/contacts')) {
-        var body = '';
-        request.on('data', function(chunk) {
-            body += chunk.toString();
-        });
-        request.on('end', function() {
-            var contact = JSON.parse(body);
-            contact.id = ++lastId;
-            response.end("New Contact, got it!");
-            contacts.push(contact);
-        });
+        postContacts(request, response);
     } else {
-        console.log(request.method, request.url);
-        response.statusCode = 404;
-        response.end('404, Nothing Here!');
+        notFound(request, response);
     }
 });
 

@@ -1,8 +1,14 @@
 var http = require('http');
-
-var contacts = [{ "first": "Prathyusha", "last": "Mattam", "email": "xyz@yahoo.com", "phone": "1234321423", "id": 1 }, { "first": "Melissa", "last": "Mary", "email": "melissa@gmail.com", "phone": "3211424323", "id": 2 }];
-
+var contacts = [];
 var lastId = 0;
+
+var matches = function(request, method, path) {
+    return request.method === method && request.url.startsWith(path);
+};
+
+var getSuffix = function(fullUrl, prefix) {
+    return fullUrl.slice(prefix.length);
+};
 
 var findContactWithId = function(contactId) {
     var contactId = parseInt(contactId, 10);
@@ -11,61 +17,41 @@ var findContactWithId = function(contactId) {
     });
 };
 
-var matches = function(request, method, path) {
-    console.log(request.method === method && request.url.startsWith(path));
-    return request.method === method && request.url.startsWith(path);
-}
+var indexOfFoundContactWithId = function(foundContactWithId) {
+    if (contacts.indexOf(foundContactWithId) !== -1) {
+        return contacts.indexOf(foundContactWithId);
+    }
+};
 
-var getSuffix = function(fullUrl, prefix) {
-    console.log("It came here");
-    // console.log(prefix);
-    console.log('prefix', fullUrl.slice(prefix.length));
-    return fullUrl.slice(prefix.length);
-}
+var getContact = function() {
+
+};
 
 var server = http.createServer(function(request, response) {
-    var contactId = request.url.slice(1);
-    // console.log(request.url);
-    // var id = getSuffix(request.url, '/contacts')
-    //     // if (request.method === 'GET' && requestl.url === '/contacts') {
-    // console.log("ID----", id);
     if (matches(request, 'GET', '/contacts/')) {
-        var id = getSuffix(request.url, '/contacts/');
-        console.log("ID", id);
-        console.log("It's coming here")
-        response.end(JSON.stringify(findContactWithId(id)));
-
-    } else if (request.method === 'DELETE') {
-        if (contactId === '') {
-            response.end("Invalid url");
-        } else {
-            contacts.pop(findContactWithId(contactId));
-            response.end(`Deleted Contact ${findContactWithId(contactId).first}`);
-        }
-    } else if (request.method === 'PUT') {
-        if (contactId === '') {
-            response.end("Invalid url");
-        } else {
-            var body = '';
-            request.on('data', function(chunk) {
-                body += chunk.toString();
-            });
-            request.on('end', function() {
-                var updatedContact = JSON.parse(body);
-                var indexOfFoundContactWithId = contacts.indexOf(findContactWithId(contactId));
-                if (indexOfFoundContactWithId !== -1) {
-                    contacts[indexOfFoundContactWithId] = updatedContact;
-                }
-                response.end(`Updated Contact for ${updatedContact.first}`);
-            });
-        }
-    } else if (request.method === 'GET' && request.url === '/contacts') {
-        // if (id) { // === '') {
-        //     console.log("It is here");
-        //     response.end(JSON.stringify(contacts));
-        // }
-        console.log("....");
-    } else if (request.method === 'POST') {
+        var contactId = getSuffix(request.url, '/contacts/');
+        response.end(JSON.stringify(findContactWithId(contactId)));
+    } else if (matches(request, 'DELETE', '/contacts/')) {
+        var contactId = getSuffix(request.url, '/contacts/');
+        var foundContactWithId = findContactWithId(contactId);
+        console.log(indexOfFoundContactWithId(foundContactWithId));
+        contacts.splice(indexOfFoundContactWithId(foundContactWithId), 1);
+        response.end(`Deleted Contact ${foundContactWithId.first}`);
+    } else if (matches(request, 'PUT', '/contacts/')) {
+        var contactId = getSuffix(request.url, '/contacts/')
+        var body = '';
+        request.on('data', function(chunk) {
+            body += chunk.toString();
+        });
+        request.on('end', function() {
+            var updatedContact = JSON.parse(body);
+            contacts[indexOfFoundContactWithId(findContactWithId(contactId))] = updatedContact;
+            response.end(`Updated Contact for ${updatedContact.first}`);
+        });
+    } else if (matches(request, 'GET', '/contacts')) {
+        console.log("Its coming here!");
+        response.end(JSON.stringify(contacts));
+    } else if (matches(request, 'POST', '/contacts')) {
         var body = '';
         request.on('data', function(chunk) {
             body += chunk.toString();
@@ -77,7 +63,9 @@ var server = http.createServer(function(request, response) {
             contacts.push(contact);
         });
     } else {
-        response.end("Something wrong");
+        console.log(request.method, request.url);
+        response.statusCode = 404;
+        response.end('404, Nothing Here!');
     }
 });
 

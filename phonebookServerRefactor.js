@@ -2,7 +2,9 @@ const http = require('http');
 let contacts = [];
 let lastId = 0;
 
-let matches = (request, method, path) => request.method === method && request.url.startsWith(path);
+// let matches = (request, method, path) => request.method === method && request.url.startsWith(path);
+// DESTRUCTURING
+let matches = (request, { method, path }) => request.method === method && request.url.startsWith(path);
 
 let getSuffix = (fullUrl, prefix) => fullUrl.slice(prefix.length);
 
@@ -21,6 +23,8 @@ let getContact = function(request, response) {
     let contactId = getSuffix(request.url, '/contacts/');
     response.end(JSON.stringify(findContactWithId(contactId)));
 };
+
+var getContact = require('./getContact');
 
 let deleteContact = function(request, response) {
     let contactId = getSuffix(request.url, '/contacts/');
@@ -58,31 +62,35 @@ let notFound = function(request, response) {
     response.end('404, Nothing Here!');
 };
 
-// let routes = [
-//     { method: 'GET', path: '/contacts/', handler: getContact },
-//     { method: 'DELETE', path: '/contacts/', handler: deleteContact },
-//     { method: 'PUT', path: '/contacts/', handler: updateContact },
-//     { method: 'GET', path: '/contacts', handler: getContacts },
-//     { method: 'POST', path: '/contacts', handler: postContacts }
-// ];
-var getHandler = function(method, path) {
-    let handler = (method === 'POST' && path === '/contacts') ? postContacts : (method === 'PUT') ? updateContact :
-        (method === 'DELETE') ? deleteContact : (method === 'GET' && path === '/contacts') ?
-        getContacts : (method === 'GET' && path === '/contacts/') ? getContact : notFound;
-    return handler;
-};
+let routes = [
+    { method: 'GET', path: '/contacts/', handler: getContact },
+    { method: 'DELETE', path: '/contacts/', handler: deleteContact },
+    { method: 'PUT', path: '/contacts/', handler: updateContact },
+    { method: 'GET', path: '/contacts', handler: getContacts },
+    { method: 'POST', path: '/contacts', handler: postContacts }
+];
+
+// var getHandler = function(method, path) {
+//     let handler = (method === 'POST' && path === '/contacts') ? postContacts : (method === 'PUT') ? updateContact :
+//         (method === 'DELETE') ? deleteContact : (method === 'GET' && path === '/contacts') ?
+//         getContacts : (method === 'GET' && path === '/contacts/') ? getContact : notFound;
+//     return handler;
+// };
+
 let server = http.createServer(function(request, response) {
+
     // let route = routes.find(route => matches(request, route.method, route.path));
-    // // if (route) {
-    // //     route.handler(request, response);
-    // // } else {
-    // //     notFound(request, response);
-    // // }
 
-    // // route ? route.handler(request, response) : notFound(request, response);
+    let route = routes.find(route => matches(request, route));
+    if (route) {
+        route.handler(request, response);
+    } else {
+        notFound(request, response);
+    }
 
+    // route ? route.handler(request, response) : notFound(request, response);
     // (route ? route.handler : notFound)(request, response);
-    getHandler(request.method, request.url)(request, response);
+    // getHandler(request.method, request.url)(request, response);
 });
 
 server.listen(3000);

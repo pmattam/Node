@@ -4,9 +4,26 @@ let lastId = 0;
 
 // let matches = (request, method, path) => request.method === method && request.url.startsWith(path);
 // DESTRUCTURING
-let matches = (request, { method, path }) => request.method === method && request.url.startsWith(path);
+let matches = (request, { method, path }) => {
+    // request.method === method && request.url.startsWith(path);
+    console.log("Method & Path", method, path);
+    var sameMethod = request.method === method;
+    console.log("Just Method", sameMethod);
+    if (sameMethod) {
+        var samePath = path.exec(request.url);
+        if (samePath) {
+            console.log("Just Path", samePath);
+            console.log("Slice of it", samePath.slice(1));
+            // var pathSliceIntConvert = parseInt(samePath.slice(1));
+            // console.log(pathSliceIntConvert);
+            // console.log(typeof(pathSliceIntConvert));
+            return samePath.slice(1);
+        }
+    }
+    return false;
+};
 
-let getSuffix = (fullUrl, prefix) => fullUrl.slice(prefix.length);
+// let getSuffix = (fullUrl, prefix) => fullUrl.slice(prefix.length);
 
 let findContactWithId = function(contactId) {
     var contactId = parseInt(contactId, 10);
@@ -19,22 +36,25 @@ let indexOfFoundContactWithId = function(foundContactWithId) {
     }
 };
 
-let getContact = function(request, response) {
-    let contactId = getSuffix(request.url, '/contacts/');
+let getContact = function(request, response, params) {
+    // let contactId = getSuffix(request.url, '/contacts/');
+    let contactId = params;
     response.end(JSON.stringify(findContactWithId(contactId)));
 };
 
-var getContact = require('./getContact');
+// var getContact = require('./getContact');
 
-let deleteContact = function(request, response) {
-    let contactId = getSuffix(request.url, '/contacts/');
+let deleteContact = function(request, response, params) {
+    // let contactId = getSuffix(request.url, '/contacts/');
+    let contactId = params;
     let foundContactWithId = findContactWithId(contactId);
     contacts.splice(indexOfFoundContactWithId(foundContactWithId), 1);
     response.end(`Deleted Contact ${foundContactWithId.first}`);
 };
 
-let updateContact = function(request, response) {
-    let contactId = getSuffix(request.url, '/contacts/')
+let updateContact = function(request, response, params) {
+    // let contactId = getSuffix(request.url, '/contacts/');
+    let contactId = params;
     var body = '';
     request.on('data', chunk => body += chunk.toString());
     request.on('end', function() {
@@ -63,11 +83,11 @@ let notFound = function(request, response) {
 };
 
 let routes = [
-    { method: 'GET', path: '/contacts/', handler: getContact },
-    { method: 'DELETE', path: '/contacts/', handler: deleteContact },
-    { method: 'PUT', path: '/contacts/', handler: updateContact },
-    { method: 'GET', path: '/contacts', handler: getContacts },
-    { method: 'POST', path: '/contacts', handler: postContacts }
+    { method: 'GET', path: /^\/contacts\/([0-9]+)$/, handler: getContact },
+    { method: 'DELETE', path: /^\/contacts\/([0-9]+)$/, handler: deleteContact },
+    { method: 'PUT', path: /^\/contacts\/([0-9]+)$/, handler: updateContact },
+    { method: 'GET', path: /^\/contacts\/?$/, handler: getContacts },
+    { method: 'POST', path: /^\/contacts\/?$/, handler: postContacts }
 ];
 
 // var getHandler = function(method, path) {
@@ -81,9 +101,29 @@ let server = http.createServer(function(request, response) {
 
     // let route = routes.find(route => matches(request, route.method, route.path));
 
-    let route = routes.find(route => matches(request, route));
-    if (route) {
-        route.handler(request, response);
+    // Older Code//
+    // // let route = routes.find(route => matches(request, route));
+    // // console.log("Route", route);
+    // // if (route) {
+    // //     route.handler(request, response);
+    // // } else {
+    // //     notFound(request, response);
+    // // }
+
+    // Newer Code//
+    let params = [];
+    let matchedRoute;
+    for (let route of routes) {
+        let match = matches(request, route);
+        if (match) {
+            matchedRoute = route;
+            console.log("Match is", parseInt(match));
+            params = parseInt(match);
+            break;
+        }
+    }
+    if (matchedRoute) {
+        matchedRoute.handler(request, response, params);
     } else {
         notFound(request, response);
     }

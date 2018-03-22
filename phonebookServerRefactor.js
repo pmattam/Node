@@ -1,13 +1,14 @@
 const http = require('http');
-let contacts = [{ "name": "Melissa Mary", "email": "melissa@gmail.com", "phone": "3211424323", "id": 2 }];
-let lastId = 0;
 const fs = require('fs');
-var promisify = require('util').promisify;
-var readFile = promisify(fs.readFile);
-var writeFile = promisify(fs.writeFile);
-var readDir = require('fs-readdir-promise');
+const readDir = require('fs-readdir-promise');
+const promisify = require('util').promisify;
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
 
-let matchesRequest = (request, { method, path }) => {
+let contacts = [{ "name": "Prathyusha Mattam", "email": "p@p.com", "phone": "3214321423", "id": 1 }, { "name": "Mattam Prathyusha", "email": "m@m.com", "phone": "3211424323", "id": 2 }];
+let lastId = 0;
+
+let matchesTheRequest = (request, { method, path }) => {
     var sameMethod = request.method === method;
     if (sameMethod) {
         var samePath = path.exec(request.url);
@@ -18,34 +19,34 @@ let matchesRequest = (request, { method, path }) => {
     return false;
 };
 
-let findContactWithId = function(contactId) {
+let findContactWithId = (contactId) => {
     var contactId = parseInt(contactId, 10);
     return contacts.find(element => element.id === contactId);
 };
 
-let indexOfFoundContactWithId = function(foundContactWithId) {
+let indexOfFoundContactWithId = (foundContactWithId) => {
     if (contacts.indexOf(foundContactWithId) !== -1) {
         return contacts.indexOf(foundContactWithId);
     }
 };
 
-let getContact = function(request, response, params) {
+let getContact = (request, response, params) => {
     let contactId = params[0];
     response.end(JSON.stringify(findContactWithId(contactId)));
 };
 
-let deleteContact = function(request, response, params) {
+let deleteContact = (request, response, params) => {
     let contactId = params[0];
     let foundContactWithId = findContactWithId(contactId);
     contacts.splice(indexOfFoundContactWithId(foundContactWithId), 1);
     response.end(`Deleted Contact ${foundContactWithId.first}`);
 };
 
-let updateContact = function(request, response, params) {
+let updateContact = (request, response, params) => {
     let contactId = params[0];
     var body = '';
     request.on('data', chunk => body += chunk.toString());
-    request.on('end', function() {
+    request.on('end', () => {
         let updatedContact = JSON.parse(body);
         contacts[indexOfFoundContactWithId(findContactWithId(contactId))] = updatedContact;
         response.end(`Updated Contact for ${updatedContact.first}`);
@@ -54,10 +55,10 @@ let updateContact = function(request, response, params) {
 
 let getContacts = (request, response) => response.end(JSON.stringify(contacts));
 
-let postContacts = function(request, response) {
+let postContacts = (request, response) => {
     var body = '';
     request.on('data', chunk => body += chunk.toString());
-    request.on('end', function() {
+    request.on('end', () => {
         let contact = JSON.parse(body);
         contact.id = ++lastId;
         response.end("New Contact, got it!");
@@ -65,20 +66,19 @@ let postContacts = function(request, response) {
     });
 };
 
-let notFound = function(request, response) {
+let notFound = (request, response) => {
     response.statusCode = 404;
     response.end('404, Nothing Here!');
 };
 
-var renderPage = function(request, response) {
+var serveStaticFiles = (request, response) => {
     var requestFileName = request.url.slice(1);
-    console.log("File name", requestFileName);
-    readDir('staticFiles', files => {
+    readDir('staticFilesDir', files => {
             return files;
         })
-        .then(function(files) {
+        .then(files => {
             if (files.indexOf(requestFileName) != -1) {
-                readFile(`staticFiles/${requestFileName}`)
+                readFile(`staticFilesDir/${requestFileName}`)
                     .then(fileData => { response.end(fileData) });
             } else {
                 console.log("File doesn't exist");
@@ -96,15 +96,14 @@ let routes = [
 ];
 
 let server = http.createServer(function(request, response) {
-    console.log(request.url);
-    var regex = /^(\/[a-z]+\.[a-z]+)$/;
+    let regex = /^(\/[a-z]+\.[a-z]+)$/;
     if (regex.test(request.url)) {
-        renderPage(request, response);
+        serveStaticFiles(request, response);
     } else {
         let params = [];
         let matchedRoute;
         for (let route of routes) {
-            let matchedRequest = matchesRequest(request, route);
+            let matchedRequest = matchesTheRequest(request, route);
             if (matchedRequest) {
                 matchedRoute = route;
                 params = matchedRequest;
@@ -113,15 +112,6 @@ let server = http.createServer(function(request, response) {
         }
         matchedRoute ? matchedRoute.handler(request, response, params) : notFound(request, response);
     }
-    // if (matchedRoute) {
-    //     matchedRoute.handler(request, response, params);
-    // } else if (request.url === /^\/[a-z]\.[a-z]$/) {
-    //     console.log("It is coming here....");
-    //     console.log("Request type", request.url);
-    //     renderPage(request, response);
-    // } else {
-    //     notFound(request, response);
-    // }
 });
 
 server.listen(3000);

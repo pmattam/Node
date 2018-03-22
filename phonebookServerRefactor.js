@@ -1,6 +1,11 @@
 const http = require('http');
-let contacts = [];
+let contacts = [{ "name": "Melissa Mary", "email": "melissa@gmail.com", "phone": "3211424323", "id": 2 }];
 let lastId = 0;
+const fs = require('fs');
+var promisify = require('util').promisify;
+var readFile = promisify(fs.readFile);
+var writeFile = promisify(fs.writeFile);
+var readDir = require('fs-readdir-promise');
 
 let matchesRequest = (request, { method, path }) => {
     var sameMethod = request.method === method;
@@ -65,6 +70,23 @@ let notFound = function(request, response) {
     response.end('404, Nothing Here!');
 };
 
+var renderPage = function(request, response) {
+    var requestFileName = request.url.slice(1);
+    console.log("File name", requestFileName);
+    readDir('staticFiles', files => {
+            return files;
+        })
+        .then(function(files) {
+            if (files.indexOf(requestFileName) != -1) {
+                readFile(`staticFiles/${requestFileName}`)
+                    .then(fileData => { response.end(fileData) });
+            } else {
+                console.log("File doesn't exist");
+                response.end();
+            }
+        });
+};
+
 let routes = [
     { method: 'GET', path: /^\/contacts\/([0-9]+)$/, handler: getContact },
     { method: 'DELETE', path: /^\/contacts\/([0-9]+)$/, handler: deleteContact },
@@ -74,19 +96,32 @@ let routes = [
 ];
 
 let server = http.createServer(function(request, response) {
-    let params = [];
-    let matchedRoute;
-    for (let route of routes) {
-        let matchedRequest = matchesRequest(request, route);
-        if (matchedRequest) {
-            matchedRoute = route;
-            params = matchedRequest;
-            console.log("Params", params);
-            console.log("Type", typeof(params));
-            break;
+    console.log(request.url);
+    var regex = /^(\/[a-z]+\.[a-z]+)$/;
+    if (regex.test(request.url)) {
+        renderPage(request, response);
+    } else {
+        let params = [];
+        let matchedRoute;
+        for (let route of routes) {
+            let matchedRequest = matchesRequest(request, route);
+            if (matchedRequest) {
+                matchedRoute = route;
+                params = matchedRequest;
+                break;
+            }
         }
+        matchedRoute ? matchedRoute.handler(request, response, params) : notFound(request, response);
     }
-    matchedRoute ? matchedRoute.handler(request, response, params) : notFound(request, response);
+    // if (matchedRoute) {
+    //     matchedRoute.handler(request, response, params);
+    // } else if (request.url === /^\/[a-z]\.[a-z]$/) {
+    //     console.log("It is coming here....");
+    //     console.log("Request type", request.url);
+    //     renderPage(request, response);
+    // } else {
+    //     notFound(request, response);
+    // }
 });
 
 server.listen(3000);

@@ -2,7 +2,7 @@ const http = require('http');
 let contacts = [];
 let lastId = 0;
 
-let matches = (request, { method, path }) => {
+let matchesRequest = (request, { method, path }) => {
     var sameMethod = request.method === method;
     if (sameMethod) {
         var samePath = path.exec(request.url);
@@ -25,19 +25,19 @@ let indexOfFoundContactWithId = function(foundContactWithId) {
 };
 
 let getContact = function(request, response, params) {
-    let contactId = params;
+    let contactId = params[0];
     response.end(JSON.stringify(findContactWithId(contactId)));
 };
 
 let deleteContact = function(request, response, params) {
-    let contactId = params;
+    let contactId = params[0];
     let foundContactWithId = findContactWithId(contactId);
     contacts.splice(indexOfFoundContactWithId(foundContactWithId), 1);
     response.end(`Deleted Contact ${foundContactWithId.first}`);
 };
 
 let updateContact = function(request, response, params) {
-    let contactId = params;
+    let contactId = params[0];
     var body = '';
     request.on('data', chunk => body += chunk.toString());
     request.on('end', function() {
@@ -73,26 +73,20 @@ let routes = [
     { method: 'POST', path: /^\/contacts\/?$/, handler: postContacts }
 ];
 
-// var getHandler = function(method, path) {
-//     let handler = (method === 'POST' && path === '/contacts') ? postContacts : (method === 'PUT') ? updateContact :
-//         (method === 'DELETE') ? deleteContact : (method === 'GET' && path === '/contacts') ?
-//         getContacts : (method === 'GET' && path === '/contacts/') ? getContact : notFound;
-//     return handler;
-// };
-
 let server = http.createServer(function(request, response) {
     let params = [];
     let matchedRoute;
     for (let route of routes) {
-        let match = matches(request, route);
-        if (match) {
+        let matchedRequest = matchesRequest(request, route);
+        if (matchedRequest) {
             matchedRoute = route;
-            params = parseInt(match);
+            params = matchedRequest;
+            console.log("Params", params);
+            console.log("Type", typeof(params));
             break;
         }
     }
     matchedRoute ? matchedRoute.handler(request, response, params) : notFound(request, response);
-    // getHandler(request.method, request.url)(request, response);
 });
 
 server.listen(3000);

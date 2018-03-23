@@ -2,7 +2,7 @@
     "name": "nodejs",
     "version": "1.0.0",
     "description": "Node Exercises",
-    "main": "phonebook.js",
+    "main": "",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },

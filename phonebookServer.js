@@ -1,13 +1,8 @@
 var http = require('http');
-
 var contacts = [];
-
 var lastId = 0;
 
 var server = http.createServer(function(request, response) {
-    // console.log(request.method, request.url);
-    // console.log(request.url);
-    // console.log(typeof(request.url));
     var contactId = request.url.slice(1);
     if (request.method === 'GET') {
         if (contactId === '') {
@@ -28,9 +23,7 @@ var server = http.createServer(function(request, response) {
             var contact = JSON.parse(body);
             contact.id = ++lastId;
             response.end("New Contact, got it!");
-            // console.log(contact);
             contacts.push(contact);
-            // console.log(contacts);
         });
     } else if (request.method === 'PUT') {
         if (contactId === '') {
@@ -50,7 +43,6 @@ var server = http.createServer(function(request, response) {
                 if (indexOfFoundContactWithId !== -1) {
                     contacts[indexOfFoundContactWithId] = updatedContact;
                 }
-                // console.log(contacts);
                 response.end(`Updated Contact for ${updatedContact.first}`);
             });
         }
@@ -63,7 +55,6 @@ var server = http.createServer(function(request, response) {
                 return element.id === contactId;
             });
             contacts.pop(foundContactWithId);
-            // console.log(contacts);
             response.end(`Deleted Contact ${foundContactWithId.first}`);
         }
     }

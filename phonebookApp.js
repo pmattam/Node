@@ -1,18 +1,18 @@
 var http = require('http');
 var fs = require('fs');
-var filename = 'phonebookApp.txt';
-var lastId = 0;
 var promisify = require('util').promisify;
 var readFile = promisify(fs.readFile);
 var writeFile = promisify(fs.writeFile);
+
 var contacts = [];
+var filename = 'phonebookApp.txt';
+var lastId = 0;
 
 var getStoredData = function() {
     readFile(filename)
         .then(function(fileData) {
             if (fileData.toString() !== '') {
                 contacts = JSON.parse(fileData);
-                // console.log(contacts);
             } else {
                 contacts = [];
             }
@@ -20,7 +20,6 @@ var getStoredData = function() {
 }();
 
 var server = http.createServer(function(request, response) {
-    // console.log(contacts);
     var contactId = request.url.slice(1);
     if (request.method === 'GET') {
         if (contactId === '') {
@@ -41,9 +40,7 @@ var server = http.createServer(function(request, response) {
             var contact = JSON.parse(body);
             contact.id = ++lastId;
             response.end("New Contact, got it!");
-            // console.log(contact);
             contacts.push(contact);
-            // console.log(contacts);
             writeFile(filename, JSON.stringify(contacts));
         });
     } else if (request.method === 'PUT') {
@@ -55,7 +52,6 @@ var server = http.createServer(function(request, response) {
                 body += chunk.toString();
             });
             request.on('end', function() {
-                console.log(contacts);
                 var updatedContact = JSON.parse(body);
                 contactId = parseInt(contactId, 10);
                 var foundContactWithId = contacts.find(function(element) {
@@ -65,7 +61,6 @@ var server = http.createServer(function(request, response) {
                 if (indexOfFoundContactWithId !== -1) {
                     contacts[indexOfFoundContactWithId] = updatedContact;
                 }
-                console.log(contacts);
                 writeFile(filename, JSON.stringify(contacts));
                 response.end(`Updated Contact for ${updatedContact.first}`);
             });
@@ -79,7 +74,6 @@ var server = http.createServer(function(request, response) {
                 return element.id === contactId;
             });
             contacts.pop(foundContactWithId);
-            // console.log(contacts);
             writeFile(filename, JSON.stringify(contacts));
             response.end(`Deleted Contact ${foundContactWithId.first}`);
         }

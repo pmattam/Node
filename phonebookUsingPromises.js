@@ -57,7 +57,6 @@ var lookUpAnEntry = function() {
         .then(function(name) {
             if (storeObj[name] !== undefined) {
                 console.log(`Found entry for ${name}: ${storeObj[name].PhoneNumber}\n`);
-                // console.log(`Found entry for ${storeObj[name].Name}: ${storeObj[name].PhoneNumber}\n`);
             } else {
                 console.log('Entry not found');
             }
@@ -76,37 +75,13 @@ var setAnEntry = function() {
             entryData.PhoneNumber = phoneNoInfo;
         })
         .then(function() {
-            console.log(entryData);
             storeObj[entryData.Name] = entryData;
-            console.log(storeObj);
             return writeFile(filename, JSON.stringify(storeObj));
         })
         .then(function() {
             console.log(`Entry stored for ${entryData.Name}`);
             consoleDisplay();
         });
-
-    // INSTEAD OF THIS ... LOOK ABOVE
-    //     var entryData = {};
-    // rlQuestionAsPromise("Name: ")
-    //     .then(function(nameInfo) {
-    //         entryData.Name = nameInfo;
-    //         return rlQuestionAsPromise("Phone Number: ");
-    //     })
-    //     .then(function(phoneNoInfo) {
-    //         entryData.PhoneNumber = phoneNoInfo;
-    //     })
-    // DIFFERENT WAY ABOVE
-    //     .then(function() {
-    //         console.log(entryData);
-    //         storeObj[entryData.Name] = entryData;
-    //         console.log(storeObj);
-    //         writeFile(filename, JSON.stringify(storeObj))
-    //             .then(function() {
-    //                 console.log(`Entry stored for ${entryData.Name}`);
-    //                 consoleDisplay();
-    //             });
-    //     });
 };
 
 var deleteAnEntry = function() {

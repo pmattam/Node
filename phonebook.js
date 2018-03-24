@@ -43,30 +43,12 @@ var consoleDisplay = function() {
             }
         }
     });
-    // return answerNumber;
 };
 
 var lookUpAnEntry = function() {
     rl.question("Name: ", function(name) {
-        // READING THE ENTRY FROM THE FILE
-        // fs.readFile(filename, function(err, fileData) {
-        //     if (err) {
-        //         console.error(err.toString());
-        //     } else {
-        //         var data = JSON.parse(fileData);
-        //         if (data[name] === undefined) {
-        //             console.log('Entry not found');
-        //         } else {
-        //             console.log(`Found entry for ${name}: ${data[name].PhoneNumber}`)
-        //         }
-        //     }
-        //     consoleDisplay();
-        // });
-
-        // INSTEAD OF READING THE ENTRY FROM THE FILE .. GETTING ENTRY FROM THE STORED OBJECT
         if (storeObj[name] !== undefined) {
             console.log(`Found entry for ${name}: ${storeObj[name].PhoneNumber}\n`);
-            // console.log(`Found entry for ${storeObj[name].Name}: ${storeObj[name].PhoneNumber}\n`);
         } else {
             console.log('Entry not found');
         }
@@ -111,22 +93,6 @@ var deleteAnEntry = function() {
 };
 
 var listAllEntries = function() {
-    //  READING THE ENTRIES FROM THE FILE
-    // fs.readFile(filename, function(err, fileData) {
-    //     if (err) {
-    //         console.error(err.toString());
-    //     } else {
-    //         if (fileData.toString() !== '') {
-    //             valuesOfDataArray = Object.values(JSON.parse(fileData));
-    //             valuesOfDataArray.forEach(function(value) {
-    //                 console.log(`Found Entry for ${value.Name}: ${value.PhoneNumber}`);
-    //             });
-    //         }
-    //     }
-    //     consoleDisplay();
-    // });
-
-    // INSTEAD OF READING FROM THE FILE .. GETTING ENTRIES FROM THE STORED OBJECT
     var entriesList = Object.values(storeObj);
     if (entriesList.length !== 0) {
         entriesList.forEach(element => {

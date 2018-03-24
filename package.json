@@ -2,7 +2,7 @@
     "name": "nodejs",
     "version": "1.0.0",
     "description": "Node Exercises",
-    "main": "phonebook.js",
+    "main": "",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
@@ -17,8 +17,11 @@
     },
     "homepage": "https://github.com/pmattam/NodeJS#readme",
     "dependencies": {
+        "fs-readdir-promise": "^1.0.1",
         "gm": "^1.23.1",
-        "request": "^2.85.0"
+        "request": "^2.85.0",
+        "request-promise": "^4.2.2",
+        "ws": "^5.1.0"
     },
     "devDependencies": {}
 }

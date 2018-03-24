@@ -20,7 +20,8 @@
         "fs-readdir-promise": "^1.0.1",
         "gm": "^1.23.1",
         "request": "^2.85.0",
-        "request-promise": "^4.2.2"
+        "request-promise": "^4.2.2",
+        "ws": "^5.1.0"
     },
     "devDependencies": {}
 }

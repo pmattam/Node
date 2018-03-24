@@ -13,24 +13,17 @@ let options = {
 };
 
 requestPromise(options)
-    .then(function(body) {
-        return writeFile(file, body)
-    })
-    .then(function(body) {
-        return readFile(file)
-    })
-    .then(function(file) {
+    .then(body => { return writeFile(file, body); })
+    .then(body => { return readFile(file); })
+    .then(file => {
         let convertedFile = file.toString();
-        // var regex1 = /<td class="summary" style="[a-zA-Z0-9-: ]+">"[<span style="white\-space: nowrap">]*<a href="[\/a-zA-Z0-9_:(),%.'éà ]+"[ class="mw\-redirect"]* title="[a-zA-Z0-9_:(),'.éà ]+">([a-zA-Z0-9_,'.éà() ]+)<\/a>[<\/span>]*"<\/td>/g;
-        // var regex2 = /<td>([A-Za-z&#0-9;, ]+)<span style="[A-Za-z0-9: ]+">[0-9&#;]+\(<span class="[a-zA-Z ]+">[0-9- ]+<\/span>\)<\/span><\/td>/g;
         let regex = /<td class="summary" style="[a-zA-Z0-9-: ]+">"[<span style="white\-space: nowrap">]*<a href="[\/a-zA-Z0-9_:(),%.'éà ]+"[ class="mw\-redirect"]* title="[a-zA-Z0-9_:(),'.éà ]+">([a-zA-Z0-9_,'.éà() ]+)<\/a>[<\/span>]*"<\/td>[^]+?<td>([A-Za-z&#0-9;, ]+)<span style="[A-Za-z0-9: ]+">[0-9&#;]+\(<span class="[a-zA-Z ]+">[0-9- ]+<\/span>\)<\/span><\/td>/g;
-
         while (match = regex.exec(convertedFile)) {
             result.push(++count + "." + match[1] + " " + "( " + match[2].replace("&#160;", " ").replace(",&#160;", " ") + " )");
         }
         return result;
     })
-    .then(function(episodes) {
+    .then(episodes => {
         writeFile(file, JSON.stringify(episodes));
         episodes.forEach(episode => console.log(episode));
     });

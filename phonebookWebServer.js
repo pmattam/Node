@@ -4,9 +4,13 @@ const readDir = require('fs-readdir-promise');
 const promisify = require('util').promisify;
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
+const pg = require('pg-promise')();
+const db = pg('postgres://pmattam@localhost:5432/phonebookapp');
 
-let contacts = [{ "name": "Prathyusha Mattam", "email": "p@p.com", "phone": "3214321423", "id": 1 }, { "name": "Mattam Prathyusha", "email": "m@m.com", "phone": "3211424323", "id": 2 }];
-let lastId = 0;
+
+// let contacts = [{ "name": "Prathyusha Mattam", "email": "p@p.com", "phone": "3214321423", "id": 1 }, { "name": "Mattam Prathyusha", "email": "m@m.com", "phone": "3211424323", "id": 2 }];
+// let contacts = [];
+// let lastId = 0;
 
 let matchesTheRequest = (request, { method, path }) => {
     var sameMethod = request.method === method;
@@ -53,16 +57,27 @@ let updateContact = (request, response, params) => {
     });
 };
 
-let getContacts = (request, response) => response.end(JSON.stringify(contacts));
-
+let getContacts = (request, response) => {
+    db.query(`SELECT * FROM contacts;`)
+        .then(results => response.end(JSON.stringify(results)))
+        .catch(error => console.log(error))
+        .then(() => pg.end())
+        //response.end(JSON.stringify(contacts));
+};
 let postContacts = (request, response) => {
     var body = '';
     request.on('data', chunk => body += chunk.toString());
     request.on('end', () => {
         let contact = JSON.parse(body);
-        contact.id = ++lastId;
+        // contact.id = ++lastId;
         response.end("New Contact, got it!");
-        contacts.push(contact);
+        // contacts.push(contact);
+        db.query(`INSERT INTO contacts (
+            firstname, lastname, email, phone_number) 
+            values ('${contact.first}', '${contact.last}', '${contact.email}', '${contact.phone}');`)
+            .then(results => console.log(results))
+            .catch(error => console.log(error))
+            .then(() => pg.end())
     });
 };
 

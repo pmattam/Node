@@ -7,11 +7,6 @@ const writeFile = promisify(fs.writeFile);
 const pg = require('pg-promise')();
 const db = pg('postgres://pmattam@localhost:5432/phonebookapp');
 
-
-// let contacts = [{ "name": "Prathyusha Mattam", "email": "p@p.com", "phone": "3214321423", "id": 1 }, { "name": "Mattam Prathyusha", "email": "m@m.com", "phone": "3211424323", "id": 2 }];
-// let contacts = [];
-// let lastId = 0;
-
 let matchesTheRequest = (request, { method, path }) => {
     var sameMethod = request.method === method;
     if (sameMethod) {
@@ -23,27 +18,40 @@ let matchesTheRequest = (request, { method, path }) => {
     return false;
 };
 
-let findContactWithId = (contactId) => {
-    var contactId = parseInt(contactId, 10);
-    return contacts.find(element => element.id === contactId);
-};
+// let findContactWithId = (contactId) => {
+//     var contactId = parseInt(contactId, 10);
+//     return contacts.find(element => element.id === contactId);
+// };
 
-let indexOfFoundContactWithId = (foundContactWithId) => {
-    if (contacts.indexOf(foundContactWithId) !== -1) {
-        return contacts.indexOf(foundContactWithId);
-    }
-};
+// let indexOfFoundContactWithId = (foundContactWithId) => {
+//     if (contacts.indexOf(foundContactWithId) !== -1) {
+//         return contacts.indexOf(foundContactWithId);
+//     }
+// };
 
 let getContact = (request, response, params) => {
     let contactId = params[0];
-    response.end(JSON.stringify(findContactWithId(contactId)));
+    db.query(`SELECT * FROM contacts
+             WHERE id = ${contactId}`)
+        .then(results => response.end(JSON.stringify(results)))
+        .catch(error => console.log(error))
+        // .then(() => pg.end())
+        // response.end(JSON.stringify(findContactWithId(contactId)));
 };
 
 let deleteContact = (request, response, params) => {
     let contactId = params[0];
-    let foundContactWithId = findContactWithId(contactId);
-    contacts.splice(indexOfFoundContactWithId(foundContactWithId), 1);
-    response.end(`Deleted Contact ${foundContactWithId.first}`);
+    // let foundContactWithId = findContactWithId(contactId);
+    // contacts.splice(indexOfFoundContactWithId(foundContactWithId), 1);
+    db.query(`DELETE FROM contacts
+             WHERE id = ${contactId}`)
+        .then(results => {
+            console.log(results);
+            response.end('Deleted Contact');
+        })
+        .catch(error => console.log(error))
+        // .then(() => pg.end())
+        // response.end(`Deleted Contact ${foundContactWithId.first}`);
 };
 
 let updateContact = (request, response, params) => {
@@ -52,8 +60,19 @@ let updateContact = (request, response, params) => {
     request.on('data', chunk => body += chunk.toString());
     request.on('end', () => {
         let updatedContact = JSON.parse(body);
-        contacts[indexOfFoundContactWithId(findContactWithId(contactId))] = updatedContact;
-        response.end(`Updated Contact for ${updatedContact.first}`);
+        console.log(updatedContact);
+        // contacts[indexOfFoundContactWithId(findContactWithId(contactId))] = updatedContact;
+        db.query(`UPDATE contacts SET 
+            firstname = '${updatedContact.first}', lastname = '${updatedContact.last}', 
+            email = '${updatedContact.email}', phone_number = '${updatedContact.phone}'
+            WHERE id = ${contactId};`)
+            .then(results => {
+                console.log(results);
+                // response.end(`Updated Contact for ${updatedContact.first}`);
+                response.end('Updated Contact');
+            })
+            .catch(error => console.log(error))
+            // .then(() => pg.end())
     });
 };
 
@@ -61,8 +80,8 @@ let getContacts = (request, response) => {
     db.query(`SELECT * FROM contacts;`)
         .then(results => response.end(JSON.stringify(results)))
         .catch(error => console.log(error))
-        .then(() => pg.end())
-        //response.end(JSON.stringify(contacts));
+        // .then(() => pg.end())
+        // response.end(JSON.stringify(contacts));
 };
 let postContacts = (request, response) => {
     var body = '';
@@ -77,7 +96,7 @@ let postContacts = (request, response) => {
             values ('${contact.first}', '${contact.last}', '${contact.email}', '${contact.phone}');`)
             .then(results => console.log(results))
             .catch(error => console.log(error))
-            .then(() => pg.end())
+            // .then(() => pg.end())
     });
 };
 

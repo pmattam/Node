@@ -1,1 +1,1 @@
-Node Exercises
+Node.js Exercises

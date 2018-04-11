@@ -17,6 +17,9 @@
     },
     "homepage": "https://github.com/pmattam/NodeJS#readme",
     "dependencies": {
+        "body-parser": "^1.18.2",
+        "expres": "0.0.5",
+        "express": "^4.16.3",
         "fs-readdir-promise": "^1.0.1",
         "gm": "^1.23.1",
         "pg-promise": "^8.2.2",
